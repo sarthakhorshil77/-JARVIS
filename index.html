@@ -2,80 +2,339 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JARVIS AI</title>
+
 <style>
+* { box-sizing:border-box; }
+
 body {
-  background: #020817;
-  color: #00d9ff;
-  font-family: Arial;
-  text-align: center;
-  padding: 30px 15px;
+  margin:0;
+  background:#020817;
+  color:#00d9ff;
+  font-family:Arial,sans-serif;
+  text-align:center;
+  min-height:100vh;
+  padding:20px 15px;
 }
-h1 { font-size: 42px; }
+
+h1 {
+  font-size:34px;
+  letter-spacing:7px;
+  text-shadow:0 0 20px #00bfff;
+  margin-top:25px;
+}
+
+.subtitle {
+  color:#70cfff;
+  letter-spacing:3px;
+  font-size:12px;
+}
+
 .circle {
-  width: 190px;
-  height: 190px;
-  border: 4px solid #00d9ff;
-  border-radius: 50%;
-  margin: 40px auto;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 0 35px #00d9ff;
-  font-size: 65px;
+  width:210px;
+  height:210px;
+  border:3px solid #00cfff;
+  border-radius:50%;
+  margin:35px auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 0 20px #008cff,
+             inset 0 0 25px #008cff;
+  animation:pulse 3s infinite;
 }
+
+.core {
+  width:115px;
+  height:115px;
+  border:3px solid #60eaff;
+  border-radius:50%;
+  box-shadow:0 0 25px #00cfff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:38px;
+}
+
+@keyframes pulse {
+  50% {
+    transform:scale(1.06);
+    box-shadow:0 0 40px #00cfff;
+  }
+}
+
+#status {
+  color:#7deaff;
+  margin:20px;
+  font-size:14px;
+}
+
+.chat {
+  max-width:500px;
+  margin:20px auto;
+  padding:15px;
+  height:190px;
+  overflow-y:auto;
+  border:1px solid #087fae;
+  border-radius:12px;
+  background:#041329;
+  text-align:left;
+}
+
+.message {
+  margin:12px 0;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+
+input {
+  width:75%;
+  padding:14px;
+  border:1px solid #00cfff;
+  border-radius:10px;
+  background:#06172c;
+  color:white;
+  font-size:15px;
+}
+
 button {
-  background: #00d9ff;
-  color: #00101c;
-  padding: 17px 30px;
-  border: 0;
-  border-radius: 30px;
-  font-size: 18px;
+  padding:13px 18px;
+  margin:7px 3px;
+  background:#007eae;
+  color:white;
+  border:1px solid #00d9ff;
+  border-radius:10px;
+  font-weight:bold;
+  cursor:pointer;
 }
-#reply { margin-top: 30px; }
+
+button:active {
+  background:#00bfff;
+}
+
+.mic {
+  width:75px;
+  height:75px;
+  border-radius:50%;
+  font-size:28px;
+  background:#003e70;
+  box-shadow:0 0 20px #008cff;
+}
+
+footer {
+  margin-top:30px;
+  font-size:11px;
+  color:#388baa;
+}
 </style>
 </head>
+
 <body>
+
 <h1>J.A.R.V.I.S</h1>
-<p>PERSONAL AI ASSISTANT</p>
-<div class="circle">🤖</div>
-<button onclick="listen()">🎙️ TALK TO JARVIS</button>
-<h3 id="reply">Hello Sir! I am ready.</h3>
+<div class="subtitle">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+
+<div class="circle">
+  <div class="core">◈</div>
+</div>
+
+<div id="status">SYSTEM ONLINE</div>
+
+<div class="chat" id="chat">
+  <div class="message">
+    <b>JARVIS:</b> Hello Boss! I am JARVIS.
+    How can I help you today?
+  </div>
+</div>
+
+<button class="mic" onclick="listen()">🎙️</button>
+<br>
+<small>Tap microphone and speak</small>
+
+<br><br>
+
+<input id="input" type="text"
+placeholder="Type your command...">
+
+<button onclick="send()">SEND</button>
+<br>
+<button onclick="speak('Hello Boss! I am JARVIS.')">
+🔊 TEST VOICE
+</button>
+
+<button onclick="stopVoice()">🔇 STOP VOICE</button>
+
+<footer>
+  JARVIS AI SYSTEM | VERSION 1.0
+</footer>
 
 <script>
-function speak(text) {
-  document.getElementById("reply").innerText = text;
-  let voice = new SpeechSynthesisUtterance(text);
-  voice.lang = "en-IN";
-  speechSynthesis.speak(voice);
+
+const chat = document.getElementById("chat");
+const statusText = document.getElementById("status");
+const input = document.getElementById("input");
+
+function addMessage(name,text) {
+  const div = document.createElement("div");
+  div.className = "message";
+
+  const bold = document.createElement("b");
+  bold.textContent = name + ": ";
+
+  div.appendChild(bold);
+  div.appendChild(document.createTextNode(text));
+
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
 }
 
-function listen() {
-  const SR = window.SpeechRecognition ||
-             window.webkitSpeechRecognition;
-
-  if (!SR) {
-    speak("Voice recognition is not supported here.");
+function speak(text) {
+  if (!("speechSynthesis" in window)) {
+    statusText.textContent = "VOICE NOT SUPPORTED";
     return;
   }
 
-  let recognition = new SR();
-  recognition.lang = "en-IN";
+  speechSynthesis.cancel();
 
-  recognition.onresult = function(event) {
-    let command = event.results[0][0].transcript.toLowerCase();
+  const speech = new SpeechSynthesisUtterance(text);
+  speech.lang = "en-US";
+  speech.rate = 0.95;
+  speech.pitch = 1;
 
-    if (command.includes("hello")) {
-      speak("Hello Sir! How can I help you?");
-    } else if (command.includes("time")) {
-      speak("The time is " + new Date().toLocaleTimeString());
-    } else {
-      speak("You said " + command);
+  speech.onstart = () => {
+    statusText.textContent = "JARVIS SPEAKING...";
+  };
+
+  speech.onend = () => {
+    statusText.textContent = "SYSTEM ONLINE";
+  };
+
+  speech.onerror = () => {
+    statusText.textContent = "VOICE ERROR";
+  };
+
+  speechSynthesis.speak(speech);
+}
+
+function reply(text) {
+  addMessage("JARVIS",text);
+  speak(text);
+}
+
+function processCommand(command) {
+
+  const cmd = command.toLowerCase().trim();
+
+  addMessage("BOSS",command);
+
+  if (cmd.includes("hello") || cmd.includes("hi")) {
+    reply("Hello Boss! Nice to meet you. How can I help you?");
+  }
+
+  else if (cmd.includes("your name")) {
+    reply("I am JARVIS, your personal assistant.");
+  }
+
+  else if (cmd.includes("time")) {
+    reply("The current time is " +
+      new Date().toLocaleTimeString());
+  }
+
+  else if (cmd.includes("date")) {
+    reply("Today's date is " +
+      new Date().toLocaleDateString());
+  }
+
+  else if (cmd.includes("how are you")) {
+    reply("I am functioning perfectly, Boss.");
+  }
+
+  else if (cmd.includes("google")) {
+    reply("Opening Google search, Boss.");
+    window.open("https://www.google.com","_blank");
+  }
+
+  else if (cmd.includes("youtube")) {
+    reply("Opening YouTube, Boss.");
+    window.open("https://www.youtube.com","_blank");
+  }
+
+  else if (cmd.includes("thank")) {
+    reply("You're welcome, Boss. Always ready.");
+  }
+
+  else if (cmd.includes("stop")) {
+    stopVoice();
+    addMessage("JARVIS","Voice stopped.");
+  }
+
+  else {
+    reply("Sorry Boss, I don't know this command yet. Please try another command.");
+  }
+}
+
+function send() {
+  const command = input.value.trim();
+  if (!command) return;
+
+  input.value = "";
+  processCommand(command);
+}
+
+input.addEventListener("keydown", function(e) {
+  if (e.key === "Enter") send();
+});
+
+function listen() {
+
+  const SpeechRecognition =
+    window.SpeechRecognition ||
+    window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    statusText.textContent =
+      "VOICE INPUT NOT SUPPORTED. PLEASE TYPE.";
+    return;
+  }
+
+  const recognition = new SpeechRecognition();
+
+  recognition.lang = "en-US";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onstart = () => {
+    statusText.textContent = "LISTENING BOSS...";
+  };
+
+  recognition.onresult = (event) => {
+    const command =
+      event.results[0][0].transcript;
+
+    processCommand(command);
+  };
+
+  recognition.onerror = () => {
+    statusText.textContent =
+      "MIC ERROR - CHECK PERMISSION";
+  };
+
+  recognition.onend = () => {
+    if (statusText.textContent === "LISTENING BOSS...") {
+      statusText.textContent = "SYSTEM ONLINE";
     }
   };
 
   recognition.start();
 }
+
+function stopVoice() {
+  speechSynthesis.cancel();
+  statusText.textContent = "SYSTEM ONLINE";
+}
+
 </script>
 </body>
 </html>
