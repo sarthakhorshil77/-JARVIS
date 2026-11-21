@@ -1,0 +1,81 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JARVIS AI</title>
+<style>
+body {
+  background: #020817;
+  color: #00d9ff;
+  font-family: Arial;
+  text-align: center;
+  padding: 30px 15px;
+}
+h1 { font-size: 42px; }
+.circle {
+  width: 190px;
+  height: 190px;
+  border: 4px solid #00d9ff;
+  border-radius: 50%;
+  margin: 40px auto;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 35px #00d9ff;
+  font-size: 65px;
+}
+button {
+  background: #00d9ff;
+  color: #00101c;
+  padding: 17px 30px;
+  border: 0;
+  border-radius: 30px;
+  font-size: 18px;
+}
+#reply { margin-top: 30px; }
+</style>
+</head>
+<body>
+<h1>J.A.R.V.I.S</h1>
+<p>PERSONAL AI ASSISTANT</p>
+<div class="circle">🤖</div>
+<button onclick="listen()">🎙️ TALK TO JARVIS</button>
+<h3 id="reply">Hello Sir! I am ready.</h3>
+
+<script>
+function speak(text) {
+  document.getElementById("reply").innerText = text;
+  let voice = new SpeechSynthesisUtterance(text);
+  voice.lang = "en-IN";
+  speechSynthesis.speak(voice);
+}
+
+function listen() {
+  const SR = window.SpeechRecognition ||
+             window.webkitSpeechRecognition;
+
+  if (!SR) {
+    speak("Voice recognition is not supported here.");
+    return;
+  }
+
+  let recognition = new SR();
+  recognition.lang = "en-IN";
+
+  recognition.onresult = function(event) {
+    let command = event.results[0][0].transcript.toLowerCase();
+
+    if (command.includes("hello")) {
+      speak("Hello Sir! How can I help you?");
+    } else if (command.includes("time")) {
+      speak("The time is " + new Date().toLocaleTimeString());
+    } else {
+      speak("You said " + command);
+    }
+  };
+
+  recognition.start();
+}
+</script>
+</body>
+</html>
