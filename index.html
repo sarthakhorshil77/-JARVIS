@@ -1,283 +1,100 @@
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JARVIS AI 3.0</title>
+function processCommand(command) {
+ const cmd = command.toLowerCase().trim();
 
-<style>
-*{box-sizing:border-box}
-body{
- margin:0;
- padding:20px;
- background:#020817;
- color:#00dfff;
- font-family:Arial;
- text-align:center;
-}
-h1{
- letter-spacing:8px;
- text-shadow:0 0 20px cyan;
-}
-.sub{letter-spacing:3px;color:#8adfff}
-.circle{
- width:220px;height:220px;
- border:4px solid cyan;
- border-radius:50%;
- margin:35px auto;
- display:flex;
- align-items:center;
- justify-content:center;
- box-shadow:0 0 35px cyan,inset 0 0 25px cyan;
- animation:pulse 3s infinite;
-}
-.core{font-size:65px}
-@keyframes pulse{
- 50%{transform:scale(1.07)}
-}
-#status{margin:20px;color:#8aeaff}
-.chat{
- height:200px;
- max-width:500px;
- overflow:auto;
- margin:20px auto;
- padding:15px;
- background:#07182c;
- border:1px solid cyan;
- border-radius:12px;
- text-align:left;
-}
-.message{margin:12px 0;color:white}
-input{
- width:72%;
- padding:14px;
- border:1px solid cyan;
- background:#07182c;
- color:white;
- border-radius:10px;
-}
-button{
- padding:13px;
- margin:5px;
- background:#005b88;
- color:white;
- border:1px solid cyan;
- border-radius:10px;
- font-weight:bold;
-}
-.mic{
- width:80px;height:80px;
- border-radius:50%;
- font-size:30px;
-}
-footer{margin-top:30px;color:#548ca9}
-</style>
-</head>
+ addMessage("BOSS", command);
 
-<body>
+ let answer = "";
 
-<h1>J.A.R.V.I.S</h1>
-<div class="sub">ADVANCED AI ASSISTANT 3.0</div>
-
-<div class="circle">
- <div class="core">◈</div>
-</div>
-
-<div id="status">SYSTEM ONLINE</div>
-
-<div class="chat" id="chat">
- <div class="message">
- <b>JARVIS:</b> Hello Boss! मैं आपकी मदद के लिए तैयार हूँ।
- </div>
-</div>
-
-<button class="mic" onclick="listen()">🎙️</button>
-<p>Tap to Speak / बोलकर आदेश दें</p>
-
-<input id="input" placeholder="Type your command...">
-<button onclick="send()">SEND</button>
-
-<br><br>
-
-<button onclick="setLanguage('hi-IN')">हिंदी</button>
-<button onclick="setLanguage('en-IN')">English</button>
-
-<br>
-<button onclick="speak('Hello Boss! JARVIS is ready.')">
-🔊 TEST VOICE
-</button>
-<button onclick="stopAll()">STOP</button>
-
-<footer>JARVIS AI 3.0 | BOSS SYSTEM</footer>
-
-<script>
-
-let language = "hi-IN";
-
-const chat = document.getElementById("chat");
-const statusText = document.getElementById("status");
-const input = document.getElementById("input");
-
-function setLanguage(lang){
- language=lang;
- addMessage("JARVIS",
- lang==="hi-IN"?"हिंदी भाषा चालू है।":"English language activated.");
-}
-
-function addMessage(name,text){
- const div=document.createElement("div");
- div.className="message";
- const b=document.createElement("b");
- b.textContent=name+": ";
- div.appendChild(b);
- div.appendChild(document.createTextNode(text));
- chat.appendChild(div);
- chat.scrollTop=chat.scrollHeight;
-}
-
-function speak(text){
- if(!("speechSynthesis" in window)) return;
-
- speechSynthesis.cancel();
-
- const msg=new SpeechSynthesisUtterance(text);
- msg.lang=language;
- msg.rate=0.95;
- msg.pitch=1;
-
- msg.onstart=()=>statusText.textContent="JARVIS SPEAKING...";
- msg.onend=()=>statusText.textContent="SYSTEM ONLINE";
-
- speechSynthesis.speak(msg);
-}
-
-function reply(text){
- addMessage("JARVIS",text);
- speak(text);
-}
-
-function openSite(name,url){
- reply(name+" खोल रहा हूँ Boss.");
- setTimeout(()=>window.open(url,"_blank"),700);
-}
-
-function processCommand(command){
-
- const cmd=command.toLowerCase().trim();
-
- addMessage("BOSS",command);
-
- if(/^(hi|hello|hey)\b/.test(cmd)||cmd.includes("नमस्ते")){
-  reply("नमस्ते Boss! मैं आपकी मदद के लिए तैयार हूँ।");
+ if (
+   cmd.includes("hello") ||
+   cmd.includes("hi") ||
+   cmd.includes("नमस्ते")
+ ) {
+   answer = "Hello Boss! कैसे हैं आप?";
  }
 
- else if(cmd.includes("youtube")||cmd.includes("यूट्यूब")){
-  openSite("YouTube","https://youtube.com");
+ else if (
+   cmd.includes("bolo") ||
+   cmd.includes("बोलो") ||
+   cmd.includes("sun rahe") ||
+   cmd.includes("सुन रहे")
+ ) {
+   answer = "जी Boss! मैं सुन रहा हूँ। बताइए, क्या करना है?";
  }
 
- else if(cmd.includes("whatsapp")||cmd.includes("व्हाट्सएप")){
-  openSite("WhatsApp","https://web.whatsapp.com");
+ else if (
+   cmd === "kay" ||
+   cmd.includes("kya") ||
+   cmd.includes("क्या")
+ ) {
+   answer = "Boss, मैं आपकी हर बात सुनने के लिए तैयार हूँ।";
  }
 
- else if(cmd.includes("chatgpt")){
-  openSite("ChatGPT","https://chatgpt.com");
+ else if (
+   cmd.includes("kaise ho") ||
+   cmd.includes("कैसे हो")
+ ) {
+   answer = "मैं बिल्कुल ठीक हूँ Boss! आप कैसे हैं?";
  }
 
- else if(cmd.includes("google")||cmd.includes("गूगल")){
-  openSite("Google","https://google.com");
+ else if (
+   cmd.includes("naam") ||
+   cmd.includes("name")
+ ) {
+   answer = "मेरा नाम JARVIS है। मैं आपका Personal AI Assistant हूँ।";
  }
 
- else if(cmd.includes("time")||cmd.includes("समय")){
-  reply("अभी समय है "+new Date().toLocaleTimeString("en-IN"));
+ else if (
+   cmd.includes("tum kya kar sakte") ||
+   cmd.includes("क्या कर सकते")
+ ) {
+   answer = "Boss, मैं वेबसाइट खोल सकता हूँ, समय बता सकता हूँ और आपके सवालों के जवाब दे सकता हूँ।";
  }
 
- else if(cmd.includes("date")||cmd.includes("तारीख")){
-  reply("आज की तारीख है "+new Date().toLocaleDateString("hi-IN"));
+ else if (
+   cmd.includes("youtube") ||
+   cmd.includes("यूट्यूब")
+ ) {
+   openSite("YouTube", "https://youtube.com");
+   return;
  }
 
- else if(cmd.includes("your name")||cmd.includes("नाम")){
-  reply("मेरा नाम JARVIS है Boss.");
+ else if (
+   cmd.includes("whatsapp") ||
+   cmd.includes("व्हाट्सएप")
+ ) {
+   openSite("WhatsApp", "https://web.whatsapp.com");
+   return;
  }
 
- else if(cmd.includes("how are you")||cmd.includes("कैसे हो")){
-  reply("मैं बिल्कुल ठीक हूँ Boss. आपके आदेश का इंतजार है।");
+ else if (
+   cmd.includes("google") ||
+   cmd.includes("गूगल")
+ ) {
+   openSite("Google", "https://google.com");
+   return;
  }
 
- else if(cmd.includes("call")||cmd.includes("कॉल")){
-  const number=command.match(/\+?\d[\d\s-]{7,}/);
-  if(number){
-   const phone=number[0].replace(/[^\d+]/g,"");
-   reply("फोन डायलर खोल रहा हूँ। कॉल करने से पहले नंबर जाँचें।");
-   setTimeout(()=>window.location.href="tel:"+phone,700);
-  }else{
-   reply("Boss, कृपया फोन नंबर भी बताएं।");
-  }
+ else if (
+   cmd.includes("time") ||
+   cmd.includes("समय")
+ ) {
+   answer = "Boss, अभी समय है " +
+   new Date().toLocaleTimeString("hi-IN");
  }
 
- else if(cmd.includes("stop")||cmd.includes("बंद")){
-  stopAll();
-  addMessage("JARVIS","आवाज बंद कर दी गई है।");
+ else if (
+   cmd.includes("date") ||
+   cmd.includes("तारीख")
+ ) {
+   answer = "आज की तारीख है " +
+   new Date().toLocaleDateString("hi-IN");
  }
 
- else{
-  reply("माफ कीजिए Boss, यह कमांड अभी मेरे सिस्टम में नहीं है।");
+ else {
+   answer = "जी Boss, मैंने आपकी बात सुनी। थोड़ा और बताइए, मैं आपकी मदद करने की कोशिश करता हूँ।";
  }
+
+ reply(answer);
 }
-
-function send(){
- const value=input.value.trim();
- if(!value)return;
- input.value="";
- processCommand(value);
-}
-
-input.addEventListener("keydown",e=>{
- if(e.key==="Enter")send();
-});
-
-function listen(){
-
- const Recognition=
- window.SpeechRecognition||
- window.webkitSpeechRecognition;
-
- if(!Recognition){
-  reply("Voice recognition supported नहीं है। आप टाइप कर सकते हैं।");
-  return;
- }
-
- const recognition=new Recognition();
- recognition.lang=language;
- recognition.continuous=false;
- recognition.interimResults=false;
-
- recognition.onstart=()=>{
- statusText.textContent="LISTENING BOSS...";
- };
-
- recognition.onresult=e=>{
- processCommand(e.results[0][0].transcript);
- };
-
- recognition.onerror=()=>{
- statusText.textContent="MICROPHONE ERROR";
- };
-
- recognition.onend=()=>{
- if(statusText.textContent==="LISTENING BOSS..."){
- statusText.textContent="SYSTEM ONLINE";
- }
- };
-
- recognition.start();
-}
-
-function stopAll(){
- speechSynthesis.cancel();
- statusText.textContent="SYSTEM ONLINE";
-}
-
-</script>
-</body>
-</html>
